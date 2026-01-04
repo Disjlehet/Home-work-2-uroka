@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Форма с группировкой элементов</title>
+</head>
+<body>
+         <!-- Задание 1 -->
+    <!-- Основная форма отправки данных -->
+    <form action="/submit" method="post">
+
+        <fieldset>
+            <!-- Заголовок группы -->
+            <legend>Личные данные</legend>
+
+            <!-- Поле для ввода имени -->
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <br><br>
+
+            <!-- Поле для ввода email -->
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            <br><br>
+
+            <!-- Поле для ввода пароля -->
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+        </fieldset>
+
+        <br>
+
+        <!-- Задание 2 -->
+        <fieldset>
+            <!-- Заголовок группы -->
+            <legend>Дополнительная информация</legend>
+
+            <!-- Выпадающий список для выбора страны -->
+            <label for="country">Country:</label>
+            <select id="country" name="country" required>
+                <option value="">Select your country</option>
+                <option value="us">United States</option>
+                <option value="ca">Canada</option>
+                <option value="uk">United Kingdom</option>
+                <option value="au">Australia</option>
+                <option value="kz">Kazakhstan</option>
+            </select>
+
+            <br><br>
+
+            <!-- Многострочное поле для сообщения -->
+            <label for="message">Message:</label><br>
+            <textarea id="message" name="message" rows="4" cols="50"></textarea>
+        </fieldset>
+
+        <br>
+
+        
+        <button type="submit">Submit</button>
+
+        
+        <button type="reset">Reset</button>
+
+    </form>
+
+</body>
+</html>
