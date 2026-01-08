@@ -1,0 +1,74 @@
+h1
+{   
+    color: blueviolet;
+    text-align: center;
+}
+/* общий селектор которые работает на все абзацы       */
+p {
+   color: blue;
+   font-size: 30px;
+   font-weight: bold;
+   text-align: left;
+   margin: 20px;
+   padding: 20px;
+}
+/* делаем один абзац цветом аква с помощью айди */
+#aqua
+{
+    color: aqua;
+} 
+/* тот самый контейнер в котором мое фото с Ажекой */
+.conteiner
+{
+    /* это фон */
+    background-color: rgb(230, 137, 25);
+    /* размеры */
+    width: 200px;
+    height: 200px;
+    /* граница */
+    border: 2px solid rgb(75, 23, 221) ;
+    /* округление углов */
+    border-radius: 20px;
+    /* ссылка на фото */
+    background-image: url(me.png);
+    /* контэйн это для того чтобы фото был полностью видным 
+    но так как он подходит под 
+    формат квадрата он виден полностью без пустого место */
+    background-size: contain;
+}
+/* это фон */
+body
+{
+    background-image: url(me.png);
+    background-size: cover;
+}
+div
+{
+    padding: 20px;
+    margin: 20px;
+    border: 3px solid rgb(207, 247, 33);
+}
+/* Этот бокс выходить с границы пока текст не закончится */
+.box1
+{
+    width: 200px;
+    height: 100px;
+    overflow: visible;
+    background-color: aqua;
+}
+/* А этот бокс с прокруткой вниз */
+.box2
+{
+    width: 200px;
+    height: 100px;
+    overflow: scroll;
+    background-color: aqua;
+}
+/* А этот бокс обрезает лишние слова которые не поместились внутрь */
+.box3
+{
+    width: 200px;
+    height: 100px;
+    overflow: hidden;
+    background-color: aqua;
+}
