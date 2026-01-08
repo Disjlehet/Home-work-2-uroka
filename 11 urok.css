@@ -1,0 +1,32 @@
+/* Селектор по тегу: применяется ко всем <p> */
+p {
+   color: blue;
+   font-size: 16px;
+}
+/* Селектор по id: применяется к одному элементу */
+#item {
+   color: red;
+   text-align: center;
+}
+/* Селектор по классу: применяется ко всем с class="iteem" */
+.iteem {
+   font-weight: bold;
+
+}
+/* Селектор по классу (последний по приоритету)*/
+.shyngys
+{
+    color: aqua;
+}
+/* Селектор по тегу (второй по приоритету)*/
+h6 
+{
+    color: black;
+}
+/* Селектор по id (самый приоритетный) */
+#Tugelbai
+{
+    color: brown;
+    font-size: medium;
+    text-align: left;
+}
