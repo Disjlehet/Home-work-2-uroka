@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тарих — FuelTrack Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="app-header">
+    <a href="index.html" class="app-logo">Fuel<span>Track</span> Pro</a>
+    <nav class="app-nav">
+        <a href="dashboard.html"><span class="nav-icon">📊</span><span class="nav-label">Басты</span></a>
+        <a href="calculator.html"><span class="nav-icon">⛽</span><span class="nav-label">Есептеу</span></a>
+        <a href="history.html" class="active"><span class="nav-icon">📋</span><span class="nav-label">Тарих</span></a>
+        <a href="profile.html"><span class="nav-icon">👤</span><span class="nav-label">Профиль</span></a>
+    </nav>
+    <div class="app-user">
+        <div class="app-avatar" id="userAvatar">?</div>
+        <span class="app-username" id="userName">—</span>
+        <button class="app-logout" onclick="logout()">Шығу</button>
+    </div>
+</header>
+<div class="app-body">
+    <div class="page-header fade-up">
+        <h2>Есептеулер тарихы</h2>
+        <p>Барлық сақталған нәтижелер</p>
+    </div>
+    <div class="fade-up delay-1">
+        <table class="history-table">
+            <thead><tr><th>Күні</th><th>Қашықтық</th><th>Жанармай</th><th>Шығын</th><th>Баға</th><th>Түрі</th><th></th></tr></thead>
+            <tbody id="historyBody">
+                <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:40px">Жазба жоқ. <a href="calculator.html" style="color:var(--brown-light)">Есептеу →</a></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="db.js"></script>
+<script>
+const user = DB.getCurrentUser();
+if (!user) window.location.href = "login.html";
+document.getElementById("userName").textContent   = user.login;
+document.getElementById("userAvatar").textContent = user.login[0].toUpperCase();
+function renderHistory() {
+    const records = DB.getRecords(user.id);
+    const tbody = document.getElementById("historyBody");
+    if (!records.length) { tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:40px">Жазба жоқ. <a href="calculator.html" style="color:var(--brown-light)">Есептеу →</a></td></tr>`; return; }
+    tbody.innerHTML = records.map(r => {
+        const cons = ((r.fuel/r.distance)*100).toFixed(2);
+        const badge = cons<7?"badge-good":cons<11?"badge-mid":"badge-bad";
+        const cost = r.pricePerL ? (r.fuel*r.pricePerL).toFixed(0)+" ₸" : "—";
+        return `<tr><td style="color:var(--text-muted);font-size:12px">${r.date}</td><td>${r.distance} км</td><td>${r.fuel} л</td><td><span class="badge ${badge}">${cons} л/100</span></td><td>${cost}</td><td style="color:var(--text-muted)">${r.fuelType||"—"}</td><td><button onclick="deleteRecord('${r.id}')" style="background:none;border:none;color:rgba(232,160,144,0.6);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:4px;transition:color 0.2s" onmouseover="this.style.color='#E8A090'" onmouseout="this.style.color='rgba(232,160,144,0.6)'">🗑</button></td></tr>`;
+    }).join("");
+}
+function deleteRecord(id) { if (confirm("Жазбаны жою керек пе?")) { DB.deleteRecord(user.id, id); renderHistory(); } }
+function logout() { DB.clearSession(); window.location.href = "login.html"; }
+renderHistory();
+</script>
+</body>
+</html>

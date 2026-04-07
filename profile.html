@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль — FuelTrack Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="app-header">
+    <a href="index.html" class="app-logo">Fuel<span>Track</span> Pro</a>
+    <nav class="app-nav">
+        <a href="dashboard.html"><span class="nav-icon">📊</span><span class="nav-label">Басты</span></a>
+        <a href="calculator.html"><span class="nav-icon">⛽</span><span class="nav-label">Есептеу</span></a>
+        <a href="history.html"><span class="nav-icon">📋</span><span class="nav-label">Тарих</span></a>
+        <a href="profile.html" class="active"><span class="nav-icon">👤</span><span class="nav-label">Профиль</span></a>
+    </nav>
+    <div class="app-user">
+        <div class="app-avatar" id="userAvatar">?</div>
+        <span class="app-username" id="userName">—</span>
+        <button class="app-logout" onclick="logout()">Шығу</button>
+    </div>
+</header>
+<div class="app-body">
+    <div class="page-header fade-up">
+        <h2>Профиль</h2>
+        <p>Аккаунт параметрлері</p>
+    </div>
+    <div style="max-width:480px">
+        <div class="stat-card fade-up delay-1" style="margin-bottom:24px">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:20px">
+                <div style="width:56px;height:56px;background:var(--brown-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--espresso)" id="bigAvatar">?</div>
+                <div>
+                    <div style="font-family:'Playfair Display',serif;font-size:18px" id="profileName">—</div>
+                    <div style="color:var(--text-muted);font-size:13px" id="profileEmail">—</div>
+                </div>
+            </div>
+            <div style="font-size:12px;color:var(--text-muted)">Тіркелген: <span id="profileDate">—</span></div>
+        </div>
+        <div class="calc-card fade-up delay-2">
+            <div class="section-title" style="margin-bottom:20px">Құпия сөзді өзгерту</div>
+            <div class="alert alert-error"   id="pwError"></div>
+            <div class="alert alert-success" id="pwSuccess"></div>
+            <div class="form-group"><label>Ағымдағы пароль</label><input type="password" id="currentPw" placeholder="••••••••"></div>
+            <div class="form-group"><label>Жаңа пароль</label><input type="password" id="newPw" placeholder="••••••••"></div>
+            <div class="form-group"><label>Жаңа парольді қайталаңыз</label><input type="password" id="confirmPw" placeholder="••••••••"></div>
+            <button class="btn-full" onclick="changePassword()">Сақтау</button>
+        </div>
+        <div class="fade-up delay-3" style="margin-top:24px;padding:20px;border:1px solid rgba(180,60,40,0.25);border-radius:10px">
+            <div style="font-size:13px;color:#E8A090;font-weight:700;margin-bottom:8px;letter-spacing:0.08em;text-transform:uppercase">Қауіпті аймақ</div>
+            <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px">Барлық есептеу деректерін өшіру.</p>
+            <button class="btn-ghost" onclick="clearData()" style="border-color:rgba(180,60,40,0.4);color:#E8A090;width:auto;padding:10px 20px">🗑 Деректерді тазалау</button>
+        </div>
+    </div>
+</div>
+<script src="db.js"></script>
+<script>
+const user = DB.getCurrentUser();
+if (!user) window.location.href = "login.html";
+document.getElementById("userName").textContent    = user.login;
+document.getElementById("userAvatar").textContent  = user.login[0].toUpperCase();
+document.getElementById("bigAvatar").textContent   = user.login[0].toUpperCase();
+document.getElementById("profileName").textContent  = user.login;
+document.getElementById("profileEmail").textContent = user.email;
+document.getElementById("profileDate").textContent  = new Date(user.createdAt).toLocaleDateString("kk-KZ");
+function changePassword() {
+    const cur=document.getElementById("currentPw").value, nw=document.getElementById("newPw").value, cf=document.getElementById("confirmPw").value;
+    const err=document.getElementById("pwError"), suc=document.getElementById("pwSuccess");
+    if (!cur||!nw||!cf) return showAlert(err,"Барлық өрістерді толтырыңыз","error");
+    if (cur!==user.password) return showAlert(err,"Ағымдағы пароль қате","error");
+    if (nw.length<6) return showAlert(err,"Жаңа пароль кемінде 6 таңба","error");
+    if (nw!==cf) return showAlert(err,"Парольдер сәйкес келмейді","error");
+    DB.updatePassword(user.email,nw);
+    showAlert(suc,"Пароль сәтті өзгертілді!","success");
+    document.getElementById("currentPw").value=document.getElementById("newPw").value=document.getElementById("confirmPw").value="";
+}
+function clearData() {
+    if (confirm("Барлық есептеу деректері жойылады. Сенімдісіз бе?")) {
+        const all=JSON.parse(localStorage.getItem("ft_records")||"{}"); delete all[user.id]; localStorage.setItem("ft_records",JSON.stringify(all));
+        showAlert(document.getElementById("pwSuccess"),"Деректер тазаланды!","success");
+    }
+}
+function logout() { DB.clearSession(); window.location.href="login.html"; }
+function showAlert(el,msg,type) { el.textContent=msg; el.className="alert alert-"+type+" show"; setTimeout(()=>el.classList.remove("show"),5000); }
+</script>
+</body>
+</html>

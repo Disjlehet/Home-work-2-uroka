@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Есептеу — FuelTrack Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="app-header">
+    <a href="index.html" class="app-logo">Fuel<span>Track</span> Pro</a>
+    <nav class="app-nav">
+        <a href="dashboard.html"><span class="nav-icon">📊</span><span class="nav-label">Басты</span></a>
+        <a href="calculator.html" class="active"><span class="nav-icon">⛽</span><span class="nav-label">Есептеу</span></a>
+        <a href="history.html"><span class="nav-icon">📋</span><span class="nav-label">Тарих</span></a>
+        <a href="profile.html"><span class="nav-icon">👤</span><span class="nav-label">Профиль</span></a>
+    </nav>
+    <div class="app-user">
+        <div class="app-avatar" id="userAvatar">?</div>
+        <span class="app-username" id="userName">—</span>
+        <button class="app-logout" onclick="logout()">Шығу</button>
+    </div>
+</header>
+<div class="app-body">
+    <div class="page-header fade-up">
+        <h2>Жанармай есептеу</h2>
+        <p>Қашықтық пен жанармай мөлшерін енгізіңіз</p>
+    </div>
+    <div class="calc-card fade-up delay-1">
+        <div class="form-group"><label>Қашықтық (км)</label><input type="number" id="distance" placeholder="мысалы: 350" min="0"></div>
+        <div class="form-group"><label>Жанармай мөлшері (литр)</label><input type="number" id="fuel" placeholder="мысалы: 28.5" min="0" step="0.1"></div>
+        <div class="form-group"><label>1 литр бағасы (₸) — міндетті емес</label><input type="number" id="pricePerL" placeholder="мысалы: 195" min="0"></div>
+        <div class="form-group"><label>Жанармай түрі</label><input type="text" id="fuelType" placeholder="АИ-92, АИ-95, Дизель..."></div>
+        <div class="alert alert-error" id="calcError"></div>
+        <button class="btn-full" onclick="calculate()">Есептеу</button>
+        <div class="result-display" id="resultBlock">
+            <div class="result-label">Жанармай шығыны</div>
+            <div class="result-main" id="resultMain">—</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-top:4px" id="resultSub"></div>
+            <div style="margin-top:12px;display:flex;gap:20px;flex-wrap:wrap">
+                <div><div class="result-label">Жалпы құны</div><div style="font-size:18px;color:var(--warm-beige)" id="resultCost">—</div></div>
+                <div><div class="result-label">Рейтинг</div><div id="resultBadge"></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="db.js"></script>
+<script>
+const user = DB.getCurrentUser();
+if (!user) window.location.href = "login.html";
+document.getElementById("userName").textContent   = user.login;
+document.getElementById("userAvatar").textContent = user.login[0].toUpperCase();
+function calculate() {
+    const d = parseFloat(document.getElementById("distance").value);
+    const f = parseFloat(document.getElementById("fuel").value);
+    const p = parseFloat(document.getElementById("pricePerL").value) || null;
+    const ft = document.getElementById("fuelType").value.trim();
+    const err = document.getElementById("calcError");
+    if (!d || !f || d <= 0 || f <= 0) { err.textContent="Дұрыс мән енгізіңіз!"; err.className="alert alert-error show"; return; }
+    err.className = "alert alert-error";
+    const consumption = (f/d)*100;
+    const cost = p ? (f*p).toFixed(0) : null;
+    DB.addRecord(user.id, { distance:d, fuel:f, pricePerL:p, fuelType:ft });
+    document.getElementById("resultMain").textContent = consumption.toFixed(2)+" л / 100 км";
+    document.getElementById("resultSub").textContent  = `${d} км жолда ${f} л жанармай жұмсалды`;
+    document.getElementById("resultCost").textContent = cost ? cost+" ₸" : "—";
+    const badge = consumption<7 ? {cls:"badge-good",t:"Үнемді ✅"} : consumption<11 ? {cls:"badge-mid",t:"Орташа ⚡"} : {cls:"badge-bad",t:"Жоғары ⚠️"};
+    document.getElementById("resultBadge").innerHTML = `<span class="badge ${badge.cls}">${badge.t}</span>`;
+    document.getElementById("resultBlock").classList.add("show");
+    document.getElementById("resultBlock").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function logout() { DB.clearSession(); window.location.href = "login.html"; }
+document.addEventListener("keydown", e => { if (e.key==="Enter") calculate(); });
+</script>
+</body>
+</html>

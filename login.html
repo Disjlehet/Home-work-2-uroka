@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кіру — FuelTrack Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="form-wrapper">
+    <div class="form-container fade-up">
+
+        <div class="form-logo">
+            <h1>Fuel<span>Track</span> Pro</h1>
+            <p>Жеке кабинетке кіріңіз</p>
+        </div>
+
+        <div class="alert alert-error" id="loginError"></div>
+
+        <div class="form-group">
+            <label>Логин немесе Email</label>
+            <input type="text" id="username" placeholder="логин / email">
+        </div>
+        <div class="form-group">
+            <label>Құпия сөз</label>
+            <input type="password" id="password" placeholder="••••••••">
+        </div>
+
+        <button class="btn-full" onclick="login()">Кіру</button>
+
+        <div class="form-footer" style="margin-top:14px">
+            <a onclick="openForgot()">Құпия сөзді ұмыттым</a>
+        </div>
+
+        <div class="divider">немесе</div>
+
+        <button class="btn-ghost" onclick="window.location.href='register.html'">Жаңа аккаунт жасау</button>
+
+        <div class="form-footer" style="margin-top:16px">
+            <a href="index.html">← Басты бетке</a>
+        </div>
+    </div>
+</div>
+
+<!-- ══ FORGOT PASSWORD MODAL ══ -->
+<div class="modal-overlay" id="forgotModal">
+    <div class="modal" style="position:relative">
+        <button class="modal-close" onclick="closeModal('forgotModal')">×</button>
+
+        <!-- Step 1: Email -->
+        <div id="step1">
+            <h3>Құпия сөзді қалпына келтіру</h3>
+            <p>Email-іңізді енгізіңіз — растау кодын жібереміз.</p>
+            <div class="alert alert-error" id="forgotError1"></div>
+            <div class="alert alert-success" id="forgotSuccess1"></div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="forgotEmail" placeholder="email@example.com">
+            </div>
+            <button class="btn-full" onclick="sendCode()">Код жіберу</button>
+        </div>
+
+        <!-- Step 2: Code + new password -->
+        <div id="step2" style="display:none">
+            <h3>Кодты растаңыз</h3>
+            <p>Email-ге 6 таңбалы код жіберілді (demo: консольді тексер).</p>
+            <div class="alert alert-error" id="forgotError2"></div>
+            <div class="form-group">
+                <label>Растау коды</label>
+                <input type="text" id="resetCode" placeholder="123456" maxlength="6">
+            </div>
+            <div class="form-group">
+                <label>Жаңа құпия сөз</label>
+                <input type="password" id="newPassword" placeholder="••••••••">
+            </div>
+            <div class="form-group">
+                <label>Құпия сөзді қайталаңыз</label>
+                <input type="password" id="confirmPassword" placeholder="••••••••">
+            </div>
+            <button class="btn-full" onclick="resetPassword()">Сақтау</button>
+            <button class="btn-ghost" onclick="showStep(1)" style="margin-top:10px">← Артқа</button>
+        </div>
+
+        <!-- Step 3: Done -->
+        <div id="step3" style="display:none; text-align:center">
+            <div style="font-size:48px; margin-bottom:16px">✅</div>
+            <h3>Дайын!</h3>
+            <p style="margin-bottom:24px">Құпия сөз сәтті өзгертілді.</p>
+            <button class="btn-full" onclick="closeModal('forgotModal')">Жабу</button>
+        </div>
+    </div>
+</div>
+
+<script src="db.js"></script>
+<script>
+let resetEmail = "";
+
+function login() {
+    const login = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+    const err = document.getElementById("loginError");
+
+    if (!login || !password) {
+        showAlert(err, "Барлық өрістерді толтырыңыз", "error"); return;
+    }
+
+    const user = DB.findUser(login);
+    if (!user || user.password !== password) {
+        showAlert(err, "Қате логин немесе пароль!", "error"); return;
+    }
+
+    DB.setSession(user.id);
+    window.location.href = "dashboard.html";
+}
+
+function openForgot() {
+    showStep(1);
+    document.getElementById("forgotModal").classList.add("open");
+}
+
+function closeModal(id) {
+    document.getElementById(id).classList.remove("open");
+}
+
+function showStep(n) {
+    [1,2,3].forEach(i => document.getElementById("step"+i).style.display = i===n ? "block" : "none");
+}
+
+function sendCode() {
+    resetEmail = document.getElementById("forgotEmail").value.trim();
+    const err = document.getElementById("forgotError1");
+    const suc = document.getElementById("forgotSuccess1");
+
+    if (!resetEmail) { showAlert(err, "Email енгізіңіз", "error"); return; }
+
+    const user = DB.findUserByEmail(resetEmail);
+    if (!user) { showAlert(err, "Бұл email тіркелмеген", "error"); return; }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    DB.setResetCode(resetEmail, code);
+
+    // Demo: console-ге шығарамыз (нақты жүйеде email API)
+    console.log("🔑 Растау коды:", code);
+    showAlert(suc, `Код жіберілді! (Demo: F12 → Console: ${code})`, "success");
+
+    setTimeout(() => showStep(2), 2000);
+}
+
+function resetPassword() {
+    const code = document.getElementById("resetCode").value.trim();
+    const np = document.getElementById("newPassword").value;
+    const cp = document.getElementById("confirmPassword").value;
+    const err = document.getElementById("forgotError2");
+
+    if (!code || !np || !cp) { showAlert(err, "Барлық өрістерді толтырыңыз", "error"); return; }
+    if (np !== cp) { showAlert(err, "Парольдер сәйкес келмейді", "error"); return; }
+    if (np.length < 6) { showAlert(err, "Пароль кемінде 6 таңба болуы керек", "error"); return; }
+
+    if (!DB.verifyResetCode(resetEmail, code)) {
+        showAlert(err, "Код қате немесе мерзімі өтіп кетті", "error"); return;
+    }
+
+    DB.updatePassword(resetEmail, np);
+    showStep(3);
+}
+
+function showAlert(el, msg, type) {
+    el.textContent = msg;
+    el.className = "alert alert-" + type + " show";
+    setTimeout(() => el.classList.remove("show"), 5000);
+}
+
+// Enter key
+document.addEventListener("keydown", e => {
+    if (e.key === "Enter") login();
+});
+</script>
+</body>
+</html>

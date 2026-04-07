@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тіркелу — FuelTrack Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="form-wrapper">
+    <div class="form-container fade-up">
+
+        <div class="form-logo">
+            <h1>Fuel<span>Track</span> Pro</h1>
+            <p>Жаңа аккаунт жасаңыз</p>
+        </div>
+
+        <div class="alert alert-error"   id="regError"></div>
+        <div class="alert alert-success" id="regSuccess"></div>
+
+        <div class="form-group">
+            <label>Логин</label>
+            <input type="text" id="regLogin" placeholder="mylogin123">
+        </div>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="regEmail" placeholder="email@example.com">
+        </div>
+        <div class="form-group">
+            <label>Құпия сөз</label>
+            <input type="password" id="regPassword" placeholder="••••••••">
+        </div>
+        <div class="form-group">
+            <label>Құпия сөзді қайталаңыз</label>
+            <input type="password" id="regConfirm" placeholder="••••••••">
+        </div>
+
+        <!-- Password strength -->
+        <div style="margin-bottom:16px">
+            <div style="height:4px; background:rgba(255,255,255,0.1); border-radius:2px; overflow:hidden">
+                <div id="strengthBar" style="height:100%; width:0%; border-radius:2px; transition:all 0.3s"></div>
+            </div>
+            <div id="strengthText" style="font-size:11px; margin-top:4px; color:var(--text-muted)"></div>
+        </div>
+
+        <button class="btn-full" onclick="register()">Аккаунт жасау</button>
+
+        <div class="divider">немесе</div>
+
+        <button class="btn-ghost" onclick="window.location.href='login.html'">Кіру</button>
+
+        <div class="form-footer" style="margin-top:16px">
+            <a href="index.html">← Басты бетке</a>
+        </div>
+    </div>
+</div>
+
+<script src="db.js"></script>
+<script>
+function register() {
+    const login    = document.getElementById("regLogin").value.trim();
+    const email    = document.getElementById("regEmail").value.trim();
+    const password = document.getElementById("regPassword").value;
+    const confirm  = document.getElementById("regConfirm").value;
+    const err = document.getElementById("regError");
+    const suc = document.getElementById("regSuccess");
+
+    if (!login || !email || !password || !confirm) {
+        return showAlert(err, "Барлық өрістерді толтырыңыз", "error");
+    }
+    if (login.length < 4) return showAlert(err, "Логин кемінде 4 таңба болуы керек", "error");
+    if (!email.includes("@")) return showAlert(err, "Жарамды email енгізіңіз", "error");
+    if (password.length < 6) return showAlert(err, "Пароль кемінде 6 таңба болуы керек", "error");
+    if (password !== confirm) return showAlert(err, "Парольдер сәйкес келмейді", "error");
+
+    const result = DB.registerUser(login, email, password);
+    if (!result.ok) return showAlert(err, result.msg, "error");
+
+    showAlert(suc, "Аккаунт сәтті жасалды! Кіру бетіне өтіп жатырмыз...", "success");
+    setTimeout(() => window.location.href = "login.html", 2000);
+}
+
+// Password strength indicator
+document.getElementById("regPassword").addEventListener("input", function () {
+    const val = this.value;
+    const bar = document.getElementById("strengthBar");
+    const txt = document.getElementById("strengthText");
+
+    let score = 0;
+    if (val.length >= 6)  score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const levels = [
+        { w: "0%",   c: "transparent", t: "" },
+        { w: "25%",  c: "#E8A090", t: "Өте әлсіз" },
+        { w: "50%",  c: "#E8D090", t: "Орташа" },
+        { w: "75%",  c: "#B8C890", t: "Жақсы" },
+        { w: "100%", c: "#9DD9A0", t: "Күшті 💪" },
+    ];
+    const l = levels[Math.min(score, 4)];
+    bar.style.width = l.w;
+    bar.style.background = l.c;
+    txt.textContent = l.t;
+    txt.style.color = l.c;
+});
+
+function showAlert(el, msg, type) {
+    el.textContent = msg;
+    el.className = "alert alert-" + type + " show";
+    setTimeout(() => el.classList.remove("show"), 6000);
+}
+</script>
+</body>
+</html>

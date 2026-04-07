@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FuelTrack Pro — Жанармай бақылау жүйесі</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="home">
+
+<!-- Фон слайдтары -->
+<div class="bg-slides">
+    <div class="bg-slide active" style="background-image: url('bg1.jpg')"></div>
+    <div class="bg-slide" style="background-image: url('bg2.jpg')"></div>
+    <div class="bg-slide" style="background-image: url('bg3.jpg')"></div>
+</div>
+
+<header>
+    <div class="logo">Fuel<span>Track</span> Pro</div>
+    <nav>
+        <a href="login.html">Кіру</a>
+        <a href="register.html" class="active-nav">Тіркелу</a>
+    </nav>
+</header>
+
+<section class="hero">
+    <div class="hero-tag fade-up">🚗 Ақылды жанармай трекері</div>
+    <h2 class="fade-up delay-1">Жанармай шығынын<br><em>дәл бақылаңыз</em></h2>
+    <p class="fade-up delay-2">Километрден литрге дейін — барлығы бір жерде.<br>Көлігіңіздің шығынын есептеп, ақшаны үнемдеңіз.</p>
+    <div class="hero-btns fade-up delay-3">
+        <a href="register.html" class="btn btn-primary">Тегін бастау</a>
+        <a href="login.html" class="btn btn-outline">Кіру</a>
+    </div>
+</section>
+
+<script src="db.js"></script>
+<script>
+// Фон ауысу
+let current = 0;
+const slides = document.querySelectorAll('.bg-slide');
+setInterval(() => {
+    slides[current].classList.remove('active');
+    current = (current + 1) % slides.length;
+    slides[current].classList.add('active');
+}, 5000);
+
+// Кірген болса → dashboard
+if (DB.getCurrentUser()) {
+    window.location.href = "dashboard.html";
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кабинет — FuelTrack Pro</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="app-header">
+    <a href="index.html" class="app-logo">Fuel<span>Track</span> Pro</a>
+    <nav class="app-nav">
+        <a href="dashboard.html" class="active"><span class="nav-icon">📊</span><span class="nav-label">Басты</span></a>
+        <a href="calculator.html"><span class="nav-icon">⛽</span><span class="nav-label">Есептеу</span></a>
+        <a href="history.html"><span class="nav-icon">📋</span><span class="nav-label">Тарих</span></a>
+        <a href="profile.html"><span class="nav-icon">👤</span><span class="nav-label">Профиль</span></a>
+    </nav>
+    <div class="app-user">
+        <div class="app-avatar" id="userAvatar">?</div>
+        <span class="app-username" id="userName">—</span>
+        <button class="app-logout" onclick="logout()">Шығу</button>
+    </div>
+</header>
+<div class="app-body">
+    <div class="page-header fade-up">
+        <h2>Қош келдіңіз, <span id="greetName" style="color:var(--brown-light)">—</span>!</h2>
+        <p>Сіздің жанармай статистикаңыз</p>
+    </div>
+    <div class="stats-grid fade-up delay-1">
+        <div class="stat-card"><div class="stat-label">Соңғы шығын</div><div class="stat-value" id="lastVal">—</div><div class="stat-unit">л / 100 км</div></div>
+        <div class="stat-card"><div class="stat-label">Орташа шығын</div><div class="stat-value" id="avgVal">—</div><div class="stat-unit">л / 100 км</div></div>
+        <div class="stat-card"><div class="stat-label">Барлық жанармай</div><div class="stat-value" id="totalFuel">—</div><div class="stat-unit">литр</div></div>
+        <div class="stat-card"><div class="stat-label">Жалпы жол</div><div class="stat-value" id="totalDist">—</div><div class="stat-unit">километр</div></div>
+    </div>
+    <div class="fade-up delay-2">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="section-title">Соңғы есептеулер</div>
+            <a href="calculator.html" class="btn btn-primary" style="font-size:12px;padding:9px 20px;text-decoration:none">+ Жаңа</a>
+        </div>
+        <table class="history-table">
+            <thead><tr><th>Күні</th><th>Қашықтық</th><th>Жанармай</th><th>Шығын</th><th>Баға</th></tr></thead>
+            <tbody id="recentBody">
+                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:32px">Жазба жоқ. <a href="calculator.html" style="color:var(--brown-light)">Бірінші есептеуді жасаңыз →</a></td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<script src="db.js"></script>
+<script>
+const user = DB.getCurrentUser();
+if (!user) window.location.href = "login.html";
+document.getElementById("userName").textContent   = user.login;
+document.getElementById("greetName").textContent  = user.login;
+document.getElementById("userAvatar").textContent = user.login[0].toUpperCase();
+const stats = DB.getStats(user.id);
+document.getElementById("lastVal").textContent   = stats.lastResult || "—";
+document.getElementById("avgVal").textContent    = stats.avgConsumption > 0 ? stats.avgConsumption : "—";
+document.getElementById("totalFuel").textContent = stats.totalFuel > 0 ? stats.totalFuel : "—";
+document.getElementById("totalDist").textContent = stats.totalDist > 0 ? stats.totalDist : "—";
+const records = DB.getRecords(user.id).slice(0, 8);
+if (records.length) {
+    document.getElementById("recentBody").innerHTML = records.map(r => {
+        const cons = ((r.fuel/r.distance)*100).toFixed(2);
+        const badge = cons < 7 ? "badge-good" : cons < 11 ? "badge-mid" : "badge-bad";
+        const cost = r.pricePerL ? (r.fuel*r.pricePerL).toFixed(0)+" ₸" : "—";
+        return `<tr><td style="color:var(--text-muted);font-size:13px">${r.date}</td><td>${r.distance} км</td><td>${r.fuel} л</td><td><span class="badge ${badge}">${cons} л/100</span></td><td>${cost}</td></tr>`;
+    }).join("");
+}
+function logout() { DB.clearSession(); window.location.href = "login.html"; }
+</script>
+</body>
+</html>
