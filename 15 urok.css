@@ -1,0 +1,22 @@
+.block {
+    background-color: aqua  ;
+}
+.block-to-inline {
+    display: inline;
+    background-color: aquamarine;
+}
+.inline-to-block{
+    display: block;
+    background-color: bisque;
+}
+.container{
+    background-color: lightblue;
+    padding: 20px;
+    display: block; 
+}
+.container p,
+.container img,
+.container a {
+    display: block;      /* все вложенные элементы блочные */
+    margin-bottom: 10px; /* вертикальные отступы */
+}
